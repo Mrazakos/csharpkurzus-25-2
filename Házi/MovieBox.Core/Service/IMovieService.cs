@@ -33,7 +33,7 @@ namespace MovieBox.Core.Service
         /// <summary>
         /// Gets calculated stats for the entire collection.
         /// </summary>
-        MovieCollectionStats GetMovieCollectionStats(); // Note: Not IEnumerable
+        MovieCollectionStats GetMovieCollectionStats();
 
         /// <summary>
         /// Searches the collection using a flexible filter object.

@@ -1,5 +1,6 @@
 ﻿using MovieBox.Core.Filter;
 using MovieBox.Core.Records;
+using MovieBox.Core.Repository;
 
 namespace MovieBox.Core.Service
 {
@@ -51,6 +52,7 @@ namespace MovieBox.Core.Service
             }
             catch (Exception ex)
             { 
+                Console.WriteLine($"[MovieService] Error: Failed to initialize movies. {ex.Message}");
                 throw new InvalidOperationException("Failed to initialize MovieService.", ex);
             }
         }

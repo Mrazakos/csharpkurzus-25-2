@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MovieBox.Core
+namespace MovieBox.Core.Repository
 {
     public interface IMovieRepository
     {
