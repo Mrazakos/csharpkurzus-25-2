@@ -9,9 +9,13 @@ namespace MovieBox.Infrastucture
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public JsonMovieRepository()
+        /// <summary>
+        /// Initializes a new instance of the JsonMovieRepository with a custom file path.
+        /// </summary>
+        /// <param name="filePath">The path to the JSON file. Defaults to "movies.json" in current directory.</param>
+        public JsonMovieRepository(string? filePath = null)
         {
-            _filePath = "movies.json";
+            _filePath = filePath ?? "movies.json";
 
             _jsonOptions = new JsonSerializerOptions
             {
@@ -21,7 +25,7 @@ namespace MovieBox.Infrastucture
         }
 
         /// <summary>
-        /// Asynchronously loads the list of movies from "movies.json".
+        /// Asynchronously loads the list of movies from the configured JSON file.
         /// </summary>
         public async Task<IEnumerable<Movie>> LoadMovies()
         {
@@ -56,7 +60,7 @@ namespace MovieBox.Infrastucture
         }
 
         /// <summary>
-        /// Asynchronously overwrites "movies.json" with the current list of movies.
+        /// Asynchronously overwrites the configured JSON file with the current list of movies.
         /// </summary>
         public async Task SaveMovies(IEnumerable<Movie> movies)
         {
