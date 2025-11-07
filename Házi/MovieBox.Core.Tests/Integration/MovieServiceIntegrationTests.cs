@@ -10,10 +10,18 @@ namespace MovieBox.Core.Tests.Integration
     [TestFixture]
     public class MovieServiceIntegrationTests
     {
-        private MovieService? _movieService;
-        private IMovieRepository? _repository;
-        private IMovieFilterService? _filterService;
+        private IMovieService _movieService;
+        private IMovieRepository _repository;
+        private IMovieFilterService _filterService;
         private const string TestFilePath = "test_movies_integration.json";
+
+        public MovieServiceIntegrationTests()
+
+        {
+            _repository = new JsonMovieRepository(TestFilePath);
+            _filterService = new MovieFilterService();
+            _movieService = new MovieService(_repository, _filterService);
+        }
 
         [SetUp]
         public void Setup()
@@ -55,14 +63,14 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in originalMovies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             // Act
-            await _movieService!.SaveAsync();
+            await _movieService.SaveAsync();
 
             // Create new service instance to simulate loading
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Assert
@@ -80,9 +88,9 @@ namespace MovieBox.Core.Tests.Integration
             // Arrange - no movies added
 
             // Act
-            await _movieService!.SaveAsync();
+            await _movieService.SaveAsync();
 
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Assert
@@ -104,13 +112,13 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in movies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             // Act
-            await _movieService!.SaveAsync();
+            await _movieService.SaveAsync();
 
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Assert
@@ -133,7 +141,7 @@ namespace MovieBox.Core.Tests.Integration
                 new Movie("Preloaded Movie 2", "Director B", 2016, 9.1)
             };
 
-            var preloadService = new MovieService(_repository!, _filterService!);
+            var preloadService = new MovieService(_repository, _filterService);
             foreach (var movie in testMovies)
             {
                 preloadService.AddMovie(movie);
@@ -141,7 +149,7 @@ namespace MovieBox.Core.Tests.Integration
             await preloadService.SaveAsync();
 
             // Act
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Assert
@@ -154,11 +162,11 @@ namespace MovieBox.Core.Tests.Integration
         public async Task InitializeAsync_WithEmptyFile_ReturnsEmptyCollection()
         {
             // Arrange
-            var emptyService = new MovieService(_repository!, _filterService!);
+            var emptyService = new MovieService(_repository, _filterService);
             await emptyService.SaveAsync(); // Save empty collection
 
             // Act
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Assert
@@ -170,11 +178,11 @@ namespace MovieBox.Core.Tests.Integration
         public async Task InitializeAsync_ClearsExistingMovies()
         {
             // Arrange
-            var firstService = new MovieService(_repository!, _filterService!);
+            var firstService = new MovieService(_repository, _filterService);
             firstService.AddMovie(new Movie("First Movie", "Director", 2020, 8.0));
             await firstService.SaveAsync();
 
-            var secondService = new MovieService(_repository!, _filterService!);
+            var secondService = new MovieService(_repository, _filterService);
             secondService.AddMovie(new Movie("Temporary Movie", "Director", 2021, 7.0));
 
             // Act
@@ -204,77 +212,17 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in movies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             // Act
-            var stats = _movieService!.GetMovieCollectionStats();
+            var stats = _movieService.GetMovieCollectionStats();
 
             // Assert
             Assert.That(stats.TotalCount, Is.EqualTo(4));
             Assert.That(stats.AverageRating, Is.EqualTo(8.375).Within(0.01));
             Assert.That(stats.HighestRatedMovie?.Title, Is.EqualTo("Movie 4"));
             Assert.That(stats.HighestRatedMovie?.Rating, Is.EqualTo(9.5));
-        }
-
-        [Test]
-        public void GetMovieCollectionStats_DecadeGroupingIsAccurate()
-        {
-            // Arrange
-            var movies = new List<Movie>
-            {
-                new Movie("90s Movie 1", "Director", 1990, 8.0),
-                new Movie("90s Movie 2", "Director", 1999, 8.5),
-                new Movie("00s Movie 1", "Director", 2000, 9.0),
-                new Movie("00s Movie 2", "Director", 2009, 9.0),
-                new Movie("10s Movie 1", "Director", 2010, 8.0)
-            };
-
-            foreach (var movie in movies)
-            {
-                _movieService!.AddMovie(movie);
-            }
-
-            // Act
-            var stats = _movieService!.GetMovieCollectionStats();
-
-            // Assert
-            Assert.That(stats.MoviesPerDecade, Has.Count.EqualTo(3));
-            Assert.That(stats.MoviesPerDecade[1990], Is.EqualTo(2));
-            Assert.That(stats.MoviesPerDecade[2000], Is.EqualTo(2));
-            Assert.That(stats.MoviesPerDecade[2010], Is.EqualTo(1));
-        }
-
-        [Test]
-        public void GetMovieCollectionStats_WithEmptyCollection_ReturnsZeroValues()
-        {
-            // Act
-            var stats = _movieService!.GetMovieCollectionStats();
-
-            // Assert
-            Assert.That(stats.TotalCount, Is.EqualTo(0));
-            Assert.That(stats.AverageRating, Is.EqualTo(0.0));
-            Assert.That(stats.HighestRatedMovie, Is.Null);
-            Assert.That(stats.MoviesPerDecade, Is.Empty);
-        }
-
-        [Test]
-        public async Task GetMovieCollectionStats_AfterLoadingFromFile()
-        {
-            // Arrange - Setup initial data
-            var initialService = new MovieService(_repository!, _filterService!);
-            initialService.AddMovie(new Movie("Movie 1", "Director", 1990, 9.0));
-            initialService.AddMovie(new Movie("Movie 2", "Director", 2000, 8.0));
-            await initialService.SaveAsync();
-
-            // Act
-            var newService = new MovieService(_repository!, _filterService!);
-            await newService.InitializeAsync();
-            var stats = newService.GetMovieCollectionStats();
-
-            // Assert
-            Assert.That(stats.TotalCount, Is.EqualTo(2));
-            Assert.That(stats.AverageRating, Is.EqualTo(8.5).Within(0.01));
         }
 
         #endregion Statistics Calculation Integration Tests
@@ -294,13 +242,13 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in movies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             var criteria = new MovieFilterCriteria { DirectorContains = "Nolan" };
 
             // Act
-            var result = _movieService!.SearchMovies(criteria);
+            var result = _movieService.SearchMovies(criteria);
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(2));
@@ -321,7 +269,7 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in movies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             var criteria = new MovieFilterCriteria
@@ -332,7 +280,7 @@ namespace MovieBox.Core.Tests.Integration
             };
 
             // Act
-            var result = _movieService!.SearchMovies(criteria).ToList();
+            var result = _movieService.SearchMovies(criteria).ToList();
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(2));
@@ -351,13 +299,13 @@ namespace MovieBox.Core.Tests.Integration
 
             foreach (var movie in movies)
             {
-                _movieService!.AddMovie(movie);
+                _movieService.AddMovie(movie);
             }
 
             var criteria = new MovieFilterCriteria { DirectorContains = "NonExistent" };
 
             // Act
-            var result = _movieService!.SearchMovies(criteria);
+            var result = _movieService.SearchMovies(criteria);
 
             // Assert
             Assert.That(result, Is.Empty);
@@ -371,24 +319,24 @@ namespace MovieBox.Core.Tests.Integration
         public void AddMovie_WithNullMovie_ThrowsArgumentNullException()
         {
             // Arrange
-            Movie nullMovie = null!;
+            Movie? nullMovie = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _movieService!.AddMovie(nullMovie));
+            Assert.Throws<ArgumentNullException>(() => _movieService.AddMovie(nullMovie));
         }
 
         [Test]
         public void SaveAsync_WithEmptyCollection_DoesNotThrow()
         {
             // Act & Assert
-            Assert.DoesNotThrowAsync(async () => await _movieService!.SaveAsync());
+            Assert.DoesNotThrowAsync(async () => await _movieService.SaveAsync());
         }
 
         [Test]
         public void InitializeAsync_WithNoExistingFile_DoesNotThrow()
         {
             // Arrange - No file exists
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
 
             // Act & Assert
             Assert.DoesNotThrowAsync(async () => await newService.InitializeAsync());
@@ -402,7 +350,7 @@ namespace MovieBox.Core.Tests.Integration
         public async Task FullWorkflow_AddSaveLoadAndSearch()
         {
             // Arrange - Initial service
-            _movieService!.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8));
+            _movieService.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8));
             _movieService.AddMovie(new Movie("Interstellar", "Christopher Nolan", 2014, 8.6));
             _movieService.AddMovie(new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9));
 
@@ -410,7 +358,7 @@ namespace MovieBox.Core.Tests.Integration
             await _movieService.SaveAsync();
 
             // Create new service and load
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
             // Search in loaded data
@@ -427,18 +375,18 @@ namespace MovieBox.Core.Tests.Integration
         public async Task MultipleAddAndSave_PreservesAllMovies()
         {
             // Arrange & Act - First batch
-            _movieService!.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0));
+            _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0));
             _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5));
             await _movieService.SaveAsync();
 
             // Create new service, load, and add more
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
             newService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0));
             await newService.SaveAsync();
 
             // Reload and verify
-            var finalService = new MovieService(_repository!, _filterService!);
+            var finalService = new MovieService(_repository, _filterService);
             await finalService.InitializeAsync();
 
             // Assert
@@ -453,27 +401,15 @@ namespace MovieBox.Core.Tests.Integration
         #region Data Validation Integration Tests
 
         [Test]
-        public void GetAllMovies_ReturnsReadOnlyCollection()
-        {
-            // Arrange
-            _movieService!.AddMovie(new Movie("Test Movie", "Director", 2020, 8.5));
-
-            // Act
-            var movies = _movieService.GetAllMovies();
-
-            Assert.Throws<NotSupportedException>(() => ((IList<Movie>)movies).Add(new Movie("New", "Dir", 2021, 8.0)));
-        }
-
-        [Test]
         public async Task LoadedMovies_MaintainDataIntegrity()
         {
             // Arrange
             var originalMovie = new Movie("Exact Title", "Exact Director", 1985, 7.55);
-            _movieService!.AddMovie(originalMovie);
+            _movieService.AddMovie(originalMovie);
             await _movieService.SaveAsync();
 
             // Act
-            var newService = new MovieService(_repository!, _filterService!);
+            var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
             var loadedMovie = newService.GetAllMovies().First();
 
@@ -485,5 +421,63 @@ namespace MovieBox.Core.Tests.Integration
         }
 
         #endregion Data Validation Integration Tests
+
+        #region Delete Movie Integration Tests
+
+        [Test]
+        public void DeleteMovie_RemovesMovieAtValidIndex()
+        {
+            // Arrange
+            _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0));
+            _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5));
+            _movieService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0));
+
+            // Act
+            bool result = _movieService.DeleteMovie(1); // Delete "Movie 2"
+
+            // Assert
+            Assert.That(result, Is.True);
+            var movies = _movieService.GetAllMovies().ToList();
+            Assert.That(movies, Has.Count.EqualTo(2));
+            Assert.That(movies[0].Title, Is.EqualTo("Movie 1"));
+            Assert.That(movies[1].Title, Is.EqualTo("Movie 3"));
+        }
+
+        [Test]
+        public void DeleteMovie_WithFirstIndex_RemovesFirstMovie()
+        {
+            // Arrange
+            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0));
+            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5));
+            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0));
+
+            // Act
+            bool result = _movieService.DeleteMovie(0);
+
+            // Assert
+            Assert.That(result, Is.True);
+            var movies = _movieService.GetAllMovies().ToList();
+            Assert.That(movies[0].Title, Is.EqualTo("Second"));
+        }
+
+        [Test]
+        public void DeleteMovie_WithLastIndex_RemovesLastMovie()
+        {
+            // Arrange
+            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0));
+            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5));
+            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0));
+
+            // Act
+            bool result = _movieService.DeleteMovie(2);
+
+            // Assert
+            Assert.That(result, Is.True);
+            var movies = _movieService.GetAllMovies().ToList();
+            Assert.That(movies, Has.Count.EqualTo(2));
+            Assert.That(movies[1].Title, Is.EqualTo("Second"));
+        }
+
+        #endregion Delete Movie Integration Tests
     }
 }

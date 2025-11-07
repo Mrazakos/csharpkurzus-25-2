@@ -8,12 +8,12 @@ namespace MovieBox.Core.Tests.Service
     [TestFixture]
     public class MovieFilterServiceTest
     {
-        private MovieFilterService? _filterService;
-        private List<Movie>? _testMovies;
+        private IMovieFilterService _filterService;
+        private IEnumerable<Movie> _testMovies;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public MovieFilterServiceTest()
         {
+            _filterService = new MovieFilterService();
             _testMovies = new List<Movie>
             {
                 new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3),
@@ -25,12 +25,6 @@ namespace MovieBox.Core.Tests.Service
                 new Movie("Interstellar", "Christopher Nolan", 2014, 8.6),
                 new Movie("The Matrix", "The Wachowskis", 1999, 8.7)
             };
-        }
-
-        [SetUp]
-        public void Setup()
-        {
-            _filterService = new MovieFilterService();
         }
 
         #region Filter by Title Tests
