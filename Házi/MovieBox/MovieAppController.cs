@@ -1,14 +1,11 @@
 ﻿using MovieBox.Core.Records;
 using MovieBox.Core.Service;
 using MovieBox.Ui;
-using System.Threading.Tasks;
-
 
 namespace MovieBox
 {
     public class MovieAppController(IMovieService movieService, IConsoleUIService ui)
     {
-
         /// <summary>
         /// Starts and runs the main application loop.
         /// </summary>
@@ -30,21 +27,27 @@ namespace MovieBox
                     case "1":
                         ListAllMovies();
                         break;
+
                     case "2":
                         AddNewMovie();
                         break;
+
                     case "3":
                         SearchForMovies();
                         break;
+
                     case "4":
                         ShowStatistics();
                         break;
+
                     case "5":
                         DeleteMovie();
                         break;
+
                     case "6":
                         keepRunning = false;
                         break;
+
                     default:
                         ui.ShowMessage("Invalid option, please try again.", MessageType.Error);
                         break;
@@ -119,7 +122,7 @@ namespace MovieBox
 
                 if (selectedIndex == -1)
                 {
-                    return; // User cancelled
+                    return;
                 }
 
                 if (movieService.DeleteMovie(selectedIndex))
