@@ -103,7 +103,6 @@ namespace MovieBox.Ui
             ShowMessage("--- Delete a Movie ---", MessageType.Title);
             Console.WriteLine("Select a movie to delete:\n");
 
-            // Display movies with numbers
             for (int i = 0; i < moviesList.Count; i++)
             {
                 var movie = moviesList[i];
@@ -137,7 +136,7 @@ namespace MovieBox.Ui
                     continue;
                 }
 
-                return selection - 1; // Convert to zero-based index
+                return selection - 1;
             }
         }
 

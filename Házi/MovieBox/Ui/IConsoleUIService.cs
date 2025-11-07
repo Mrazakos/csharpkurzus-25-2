@@ -1,7 +1,6 @@
 ﻿using MovieBox.Core.Filter;
 using MovieBox.Core.Records;
 
-
 namespace MovieBox.Ui
 {
     /// <summary>
@@ -62,6 +61,4 @@ namespace MovieBox.Ui
         /// </summary>
         void WaitForUser();
     }
-
-
 }
