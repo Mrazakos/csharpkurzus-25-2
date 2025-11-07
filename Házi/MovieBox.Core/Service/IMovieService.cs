@@ -41,5 +41,12 @@ namespace MovieBox.Core.Service
         /// <param name="criteria">The filter criteria to apply.</param>
         /// <returns>A list of matching movies.</returns>
         IEnumerable<Movie> SearchMovies(MovieFilterCriteria criteria);
+
+        /// <summary>
+        /// Deletes a movie from the collection by index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the movie to delete.</param>
+        /// <returns>True if the movie was deleted successfully; false otherwise.</returns>
+        bool DeleteMovie(int index);
     }
 }

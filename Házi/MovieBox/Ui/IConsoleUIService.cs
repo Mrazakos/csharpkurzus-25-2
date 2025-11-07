@@ -44,6 +44,13 @@ namespace MovieBox.Ui
         MovieFilterCriteria GetSearchCriteria();
 
         /// <summary>
+        /// Displays a numbered list of movies and prompts user to select one to delete.
+        /// </summary>
+        /// <param name="movies">The collection of movies to display.</param>
+        /// <returns>The zero-based index of the selected movie, or -1 if cancelled.</returns>
+        int GetMovieSelectionForDeletion(IEnumerable<Movie> movies);
+
+        /// <summary>
         /// Displays a message to the user (e.g., success, error, info).
         /// </summary>
         /// <param name="message">The text to display.</param>

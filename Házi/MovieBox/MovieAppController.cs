@@ -40,6 +40,9 @@ namespace MovieBox
                         ShowStatistics();
                         break;
                     case "5":
+                        DeleteMovie();
+                        break;
+                    case "6":
                         keepRunning = false;
                         break;
                     default:
@@ -99,6 +102,39 @@ namespace MovieBox
         {
             var stats = movieService.GetMovieCollectionStats();
             ui.DisplayStats(stats);
+        }
+
+        private void DeleteMovie()
+        {
+            try
+            {
+                var movies = movieService.GetAllMovies();
+                if (!movies.Any())
+                {
+                    ui.ShowMessage("No movies available to delete.", MessageType.Error);
+                    return;
+                }
+
+                int selectedIndex = ui.GetMovieSelectionForDeletion(movies);
+
+                if (selectedIndex == -1)
+                {
+                    return; // User cancelled
+                }
+
+                if (movieService.DeleteMovie(selectedIndex))
+                {
+                    ui.ShowMessage("\nMovie deleted successfully!", MessageType.Success);
+                }
+                else
+                {
+                    ui.ShowMessage("\nFailed to delete movie.", MessageType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                ui.ShowMessage($"\nFailed to delete movie: {ex.Message}", MessageType.Error);
+            }
         }
 
         private void AddInitialData()

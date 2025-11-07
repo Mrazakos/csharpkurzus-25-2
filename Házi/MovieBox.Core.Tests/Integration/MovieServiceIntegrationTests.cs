@@ -461,7 +461,6 @@ namespace MovieBox.Core.Tests.Integration
             // Act
             var movies = _movieService.GetAllMovies();
 
-            // Assert - Should throw NotSupportedException when trying to modify
             Assert.Throws<NotSupportedException>(() => ((IList<Movie>)movies).Add(new Movie("New", "Dir", 2021, 8.0)));
         }
 

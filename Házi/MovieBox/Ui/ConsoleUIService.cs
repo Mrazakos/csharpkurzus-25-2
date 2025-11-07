@@ -23,8 +23,9 @@ namespace MovieBox.Ui
             Console.WriteLine("2. Add a New Movie");
             Console.WriteLine("3. Search for Movies");
             Console.WriteLine("4. Show Collection Statistics");
+            Console.WriteLine("5. Delete a Movie");
             Console.WriteLine("--------------------------");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("6. Exit");
             Console.Write("\nPlease select an option: ");
             return Console.ReadLine() ?? "";
         }
@@ -84,14 +85,65 @@ namespace MovieBox.Ui
         public void DisplayStats(MovieCollectionStats stats)
         {
             ShowMessage("--- Movie Collection Stats ---", MessageType.Title);
-            Console.WriteLine($"- Total Movies:     {stats.TotalCount}");
-            Console.WriteLine($"- Average Rating:   {stats.AverageRating:F2}");
-            Console.WriteLine($"- Highest Rated:    {(stats.HighestRatedMovie?.Title ?? "N/A")} ({(stats.HighestRatedMovie?.Rating.ToString("F1") ?? "N/A")})");
+         Console.WriteLine($"- Total Movies:     {stats.TotalCount}");
+        Console.WriteLine($"- Average Rating:   {stats.AverageRating:F2}");
+     Console.WriteLine($"- Highest Rated:    {(stats.HighestRatedMovie?.Title ?? "N/A")} ({(stats.HighestRatedMovie?.Rating.ToString("F1") ?? "N/A")})");
             Console.WriteLine("- Movies per Decade:");
-            foreach (var decade in stats.MoviesPerDecade.OrderBy(kv => kv.Key))
+         foreach (var decade in stats.MoviesPerDecade.OrderBy(kv => kv.Key))
             {
-                Console.WriteLine($"  - {decade.Key}s: {decade.Value} movie(s)");
+           Console.WriteLine($"  - {decade.Key}s: {decade.Value} movie(s)");
             }
+        }
+
+        public int GetMovieSelectionForDeletion(IEnumerable<Movie> movies)
+    {
+      var moviesList = movies.ToList();
+
+ if (!moviesList.Any())
+      {
+           ShowMessage("No movies available to delete.", MessageType.Error);
+          return -1;
+       }
+
+       ShowMessage("--- Delete a Movie ---", MessageType.Title);
+   Console.WriteLine("Select a movie to delete:\n");
+
+ // Display movies with numbers
+         for (int i = 0; i < moviesList.Count; i++)
+            {
+      var movie = moviesList[i];
+      Console.WriteLine($"{i + 1}. {movie.Title} ({movie.ReleaseYear}) - {movie.Director}");
+          }
+
+   Console.WriteLine($"{moviesList.Count + 1}. Cancel");
+            Console.Write("\nEnter the number of the movie to delete (or cancel): ");
+
+         while (true)
+           {
+      string? input = Console.ReadLine();
+
+  if (string.IsNullOrWhiteSpace(input) || !int.TryParse(input, out int selection))
+          {
+         ShowMessage("Invalid input. Please enter a valid number.", MessageType.Error);
+          Console.Write("Try again: ");
+           continue;
+    }
+
+    if (selection == moviesList.Count + 1)
+     {
+        ShowMessage("Deletion cancelled.", MessageType.Info);
+            return -1;
+   }
+
+      if (selection < 1 || selection > moviesList.Count)
+      {
+  ShowMessage($"Please select a number between 1 and {moviesList.Count + 1}.", MessageType.Error);
+           Console.Write("Try again: ");
+        continue;
+           }
+
+ return selection - 1; // Convert to zero-based index
+ }
         }
 
         public void ShowMessage(string message, MessageType type = MessageType.Info)

@@ -62,7 +62,24 @@ namespace MovieBox.Core.Service
             await _repository.SaveMovies(_movies);
         }
 
+        public void DeleteMovie(Movie movie)
+        {
+            if (movie is null) throw new ArgumentNullException(nameof(movie));
+            _movies.Remove(movie);
+        }
+
         public IEnumerable<Movie> SearchMovies(MovieFilterCriteria criteria)
             => _filterService.FilterMovies(_movies.AsReadOnly(), criteria);
+
+        public bool DeleteMovie(int index)
+        {
+            if (index < 0 || index >= _movies.Count)
+            {
+                return false;
+            }
+
+            _movies.RemoveAt(index);
+            return true;
+        }
     }
 }
