@@ -286,7 +286,7 @@ namespace MovieBox.Core.Tests.Service
             var result = _filterService.FilterMovies(_testMovies, criteria);
 
             // Assert
-            Assert.That(result, Has.Count.EqualTo(_testMovies.Count));
+            Assert.That(result, Has.Count.EqualTo(_testMovies.Count()));
         }
 
         [Test]
@@ -378,7 +378,7 @@ namespace MovieBox.Core.Tests.Service
             var result = _filterService.FilterMovies(_testMovies, criteria);
 
             // Assert
-            Assert.That(result, Has.Count.EqualTo(_testMovies.Count));
+            Assert.That(result, Has.Count.EqualTo(_testMovies.Count()));
         }
 
         [Test]
@@ -391,7 +391,7 @@ namespace MovieBox.Core.Tests.Service
             var result = _filterService.FilterMovies(_testMovies, criteria);
 
             // Assert
-            Assert.That(result, Has.Count.EqualTo(_testMovies.Count));
+            Assert.That(result, Has.Count.EqualTo(_testMovies.Count()));
         }
 
         [Test]
@@ -404,7 +404,7 @@ namespace MovieBox.Core.Tests.Service
             var result = _filterService.FilterMovies(_testMovies, criteria);
 
             // Assert
-            Assert.That(result, Has.Count.EqualTo(_testMovies.Count));
+            Assert.That(result, Has.Count.EqualTo(_testMovies.Count()));
         }
 
         #endregion Null or Empty Criteria Tests
