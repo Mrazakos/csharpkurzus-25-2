@@ -35,7 +35,15 @@ namespace MovieBox.Ui
             int year = ReadInt("Release Year (1888-2100): ", 1888, DateTime.Now.Year + 10);
             double rating = ReadDouble("Rating (0.0-10.0): ", 0.0, 10.0);
 
-            return new Movie(title, director, year, rating);
+            // Get status selection
+            Console.WriteLine("\nSelect Movie Status:");
+            Console.WriteLine("1. Seen");
+            Console.WriteLine("2. Favorite");
+            Console.WriteLine("3. Watchlist");
+            int statusChoice = ReadInt("Status (1-3): ", 1, 3);
+            MovieStatus status = (MovieStatus)statusChoice;
+
+            return new Movie(title, director, year, rating, status);
         }
 
         public MovieFilterCriteria GetSearchCriteria()
@@ -43,8 +51,7 @@ namespace MovieBox.Ui
             ShowMessage("--- Search for Movies ---", MessageType.Title);
             Console.WriteLine("(Press ENTER to skip any filter)");
 
-            // Use nullable helpers to build criteria
-            return new MovieFilterCriteria
+            var criteria = new MovieFilterCriteria
             {
                 Title = ReadString("Title contains: "),
                 DirectorContains = ReadString("Director contains: "),
@@ -53,6 +60,18 @@ namespace MovieBox.Ui
                 RatingMax = ReadDouble("Maximum Rating: "),
                 ResultCount = ReadInt("Limit results (e.g., 5): ")
             };
+
+            Console.WriteLine("\nFilter by Status (Press ENTER to skip):");
+            Console.WriteLine("1. Seen");
+            Console.WriteLine("2. Favorite");
+            Console.WriteLine("3. Watchlist");
+            int? statusChoice = ReadInt("Status (1-3): ");
+            if (statusChoice.HasValue && statusChoice >= 1 && statusChoice <= 3)
+            {
+                criteria.Status = (MovieStatus)statusChoice;
+            }
+
+            return criteria;
         }
 
         public void DisplayMovies(IEnumerable<Movie> movies)
@@ -67,13 +86,21 @@ namespace MovieBox.Ui
             int directorWidth = movies.Max(m => m.Director.Length) + 2;
             const int yearWidth = 8;
             const int ratingWidth = 8;
+            const int statusWidth = 12;
 
-            Console.WriteLine($"| {"Title".PadRight(titleWidth)} | {"Director".PadRight(directorWidth)} | {"Year".PadRight(yearWidth)} | {"Rating".PadRight(ratingWidth)} |");
-            Console.WriteLine($"| {new string('-', titleWidth)} | {new string('-', directorWidth)} | {new string('-', yearWidth)} | {new string('-', ratingWidth)} |");
+            Console.WriteLine($"| {"Title".PadRight(titleWidth)} | {"Director".PadRight(directorWidth)} | {"Year".PadRight(yearWidth)} | {"Rating".PadRight(ratingWidth)} | {"Status".PadRight(statusWidth)} |");
+            Console.WriteLine($"| {new string('-', titleWidth)} | {new string('-', directorWidth)} | {new string('-', yearWidth)} | {new string('-', ratingWidth)} | {new string('-', statusWidth)} |");
 
             foreach (var movie in movies)
             {
-                Console.WriteLine($"| {movie.Title.PadRight(titleWidth)} | {movie.Director.PadRight(directorWidth)} | {movie.ReleaseYear.ToString().PadRight(yearWidth)} | {movie.Rating.ToString("F1").PadRight(ratingWidth)} |");
+                string statusText = movie.Status switch
+                {
+                    MovieStatus.Seen => "Seen",
+                    MovieStatus.Favorite => "Favorite",
+                    MovieStatus.Watchlist => "Watchlist",
+                    _ => "Unknown"
+                };
+                Console.WriteLine($"| {movie.Title.PadRight(titleWidth)} | {movie.Director.PadRight(directorWidth)} | {movie.ReleaseYear.ToString().PadRight(yearWidth)} | {movie.Rating.ToString("F1").PadRight(ratingWidth)} | {statusText.PadRight(statusWidth)} |");
             }
         }
 

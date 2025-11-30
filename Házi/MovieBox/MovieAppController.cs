@@ -142,12 +142,12 @@ namespace MovieBox
 
         private void AddInitialData()
         {
-            movieService.AddMovie(new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3));
-            movieService.AddMovie(new Movie("The Godfather", "Francis Ford Coppola", 1972, 9.2));
-            movieService.AddMovie(new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0));
-            movieService.AddMovie(new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9));
-            movieService.AddMovie(new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8));
-            movieService.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8));
+            movieService.AddMovie(new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3, MovieStatus.Favorite));
+            movieService.AddMovie(new Movie("The Godfather", "Francis Ford Coppola", 1972, 9.2, MovieStatus.Favorite));
+            movieService.AddMovie(new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0, MovieStatus.Seen));
+            movieService.AddMovie(new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9, MovieStatus.Seen));
+            movieService.AddMovie(new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8, MovieStatus.Watchlist));
+            movieService.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8, MovieStatus.Favorite));
         }
     }
 }

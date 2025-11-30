@@ -56,9 +56,9 @@ namespace MovieBox.Core.Tests.Integration
             // Arrange
             var originalMovies = new List<Movie>
                  {
-                    new Movie("Test Movie 1", "Director 1", 2020, 8.5),
-                    new Movie("Test Movie 2", "Director 2", 2021, 9.0),
-                    new Movie("Test Movie 3", "Director 3", 2022, 7.5)
+                    new Movie("Test Movie 1", "Director 1", 2020, 8.5, MovieStatus.Seen),
+                    new Movie("Test Movie 2", "Director 2", 2021, 9.0, MovieStatus.Favorite),
+                    new Movie("Test Movie 3", "Director 3", 2022, 7.5, MovieStatus.Watchlist)
                 };
 
             foreach (var movie in originalMovies)
@@ -80,6 +80,7 @@ namespace MovieBox.Core.Tests.Integration
             Assert.That(loadedMovies[0].Director, Is.EqualTo("Director 1"));
             Assert.That(loadedMovies[0].ReleaseYear, Is.EqualTo(2020));
             Assert.That(loadedMovies[0].Rating, Is.EqualTo(8.5));
+            Assert.That(loadedMovies[0].Status, Is.EqualTo(MovieStatus.Seen));
         }
 
         [Test]
@@ -102,29 +103,29 @@ namespace MovieBox.Core.Tests.Integration
         public async Task SaveMultipleMovies_AllMoviesPreserved()
         {
             // Arrange
-            var movies = new List<Movie>
-            {
-                new Movie("Movie A", "Director A", 2010, 9.0),
-                new Movie("Movie B", "Director B", 2015, 8.0),
-                new Movie("Movie C", "Director C", 2020, 7.0),
-                new Movie("Movie D", "Director D", 2021, 8.5)
-            };
+          var movies = new List<Movie>
+  {
+   new Movie("Movie A", "Director A", 2010, 9.0, MovieStatus.Favorite),
+       new Movie("Movie B", "Director B", 2015, 8.0, MovieStatus.Seen),
+         new Movie("Movie C", "Director C", 2020, 7.0, MovieStatus.Watchlist),
+     new Movie("Movie D", "Director D", 2021, 8.5, MovieStatus.Favorite)
+   };
 
             foreach (var movie in movies)
-            {
-                _movieService.AddMovie(movie);
+           {
+         _movieService.AddMovie(movie);
             }
 
-            // Act
-            await _movieService.SaveAsync();
+        // Act
+       await _movieService.SaveAsync();
 
-            var newService = new MovieService(_repository, _filterService);
+      var newService = new MovieService(_repository, _filterService);
             await newService.InitializeAsync();
 
-            // Assert
-            var loaded = newService.GetAllMovies().ToList();
-            Assert.That(loaded, Has.Count.EqualTo(4));
-            Assert.That(loaded.Select(m => m.Title), Is.EqualTo(movies.Select(m => m.Title)));
+  // Assert
+          var loaded = newService.GetAllMovies().ToList();
+    Assert.That(loaded, Has.Count.EqualTo(4));
+        Assert.That(loaded.Select(m => m.Title), Is.EqualTo(movies.Select(m => m.Title)));
         }
 
         #endregion Round-Trip Tests (Save/Load Integration)
@@ -137,8 +138,8 @@ namespace MovieBox.Core.Tests.Integration
             // Arrange - Create test data file first
             var testMovies = new List<Movie>
             {
-                new Movie("Preloaded Movie 1", "Director A", 2015, 8.9),
-                new Movie("Preloaded Movie 2", "Director B", 2016, 9.1)
+                new Movie("Preloaded Movie 1", "Director A", 2015, 8.9, MovieStatus.Seen),
+                new Movie("Preloaded Movie 2", "Director B", 2016, 9.1, MovieStatus.Favorite)
             };
 
             var preloadService = new MovieService(_repository, _filterService);
@@ -204,10 +205,10 @@ namespace MovieBox.Core.Tests.Integration
             // Arrange
             var movies = new List<Movie>
             {
-               new Movie("Movie 1", "Director", 1990, 9.0),
-               new Movie("Movie 2", "Director", 1995, 8.0),
-               new Movie("Movie 3", "Director", 2000, 7.0),
-               new Movie("Movie 4", "Director", 2005, 9.5)
+               new Movie("Movie 1", "Director", 1990, 9.0, MovieStatus.Favorite),
+               new Movie("Movie 2", "Director", 1995, 8.0, MovieStatus.Seen),
+               new Movie("Movie 3", "Director", 2000, 7.0, MovieStatus.Watchlist),
+               new Movie("Movie 4", "Director", 2005, 9.5, MovieStatus.Favorite)
             };
 
             foreach (var movie in movies)
@@ -234,11 +235,11 @@ namespace MovieBox.Core.Tests.Integration
         {
             // Arrange
             var movies = new List<Movie>
-            {
-                new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0),
-                new Movie("Inception", "Christopher Nolan", 2010, 8.8),
-                new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9)
-            };
+    {
+        new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0, MovieStatus.Favorite),
+        new Movie("Inception", "Christopher Nolan", 2010, 8.8, MovieStatus.Seen),
+        new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9, MovieStatus.Watchlist)
+    };
 
             foreach (var movie in movies)
             {
@@ -261,10 +262,10 @@ namespace MovieBox.Core.Tests.Integration
             // Arrange
             var movies = new List<Movie>
             {
-                new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3),
-                new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9),
-                new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8),
-                new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0)
+                new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3, MovieStatus.Favorite),
+                new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9, MovieStatus.Seen),
+                new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8, MovieStatus.Watchlist),
+                new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0, MovieStatus.Favorite)
             };
 
             foreach (var movie in movies)
@@ -292,24 +293,24 @@ namespace MovieBox.Core.Tests.Integration
         {
             // Arrange
             var movies = new List<Movie>
-            {
-                new Movie("Movie 1", "Director A", 2020, 8.0),
-                new Movie("Movie 2", "Director B", 2021, 7.0)
-            };
+ {
+new Movie("Movie 1", "Director A", 2020, 8.0, MovieStatus.Seen),
+       new Movie("Movie 2", "Director B", 2021, 7.0, MovieStatus.Watchlist)
+ };
 
-            foreach (var movie in movies)
-            {
-                _movieService.AddMovie(movie);
-            }
+  foreach (var movie in movies)
+   {
+    _movieService.AddMovie(movie);
+   }
 
-            var criteria = new MovieFilterCriteria { DirectorContains = "NonExistent" };
+  var criteria = new MovieFilterCriteria { DirectorContains = "NonExistent" };
 
-            // Act
-            var result = _movieService.SearchMovies(criteria);
+    // Act
+   var result = _movieService.SearchMovies(criteria);
 
-            // Assert
-            Assert.That(result, Is.Empty);
-        }
+ // Assert
+      Assert.That(result, Is.Empty);
+    }
 
         #endregion Search/Filter Integration Tests
 
@@ -350,51 +351,51 @@ namespace MovieBox.Core.Tests.Integration
         public async Task FullWorkflow_AddSaveLoadAndSearch()
         {
             // Arrange - Initial service
-            _movieService.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8));
-            _movieService.AddMovie(new Movie("Interstellar", "Christopher Nolan", 2014, 8.6));
-            _movieService.AddMovie(new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9));
+            _movieService.AddMovie(new Movie("Inception", "Christopher Nolan", 2010, 8.8, MovieStatus.Favorite));
+            _movieService.AddMovie(new Movie("Interstellar", "Christopher Nolan", 2014, 8.6, MovieStatus.Seen));
+            _movieService.AddMovie(new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9, MovieStatus.Watchlist));
 
-            // Act - Save
-            await _movieService.SaveAsync();
+   // Act - Save
+    await _movieService.SaveAsync();
 
-            // Create new service and load
-            var newService = new MovieService(_repository, _filterService);
-            await newService.InitializeAsync();
+ // Create new service and load
+    var newService = new MovieService(_repository, _filterService);
+          await newService.InitializeAsync();
 
-            // Search in loaded data
-            var searchCriteria = new MovieFilterCriteria { DirectorContains = "Nolan" };
-            var searchResult = newService.SearchMovies(searchCriteria).ToList();
+    // Search in loaded data
+  var searchCriteria = new MovieFilterCriteria { DirectorContains = "Nolan" };
+     var searchResult = newService.SearchMovies(searchCriteria).ToList();
 
-            // Assert
-            Assert.That(newService.GetAllMovies(), Has.Count.EqualTo(3));
-            Assert.That(searchResult, Has.Count.EqualTo(2));
-            Assert.That(newService.GetMovieCollectionStats().AverageRating, Is.GreaterThan(8.5));
-        }
+  // Assert
+     Assert.That(newService.GetAllMovies(), Has.Count.EqualTo(3));
+       Assert.That(searchResult, Has.Count.EqualTo(2));
+  Assert.That(newService.GetMovieCollectionStats().AverageRating, Is.GreaterThan(8.5));
+      }
 
         [Test]
         public async Task MultipleAddAndSave_PreservesAllMovies()
         {
             // Arrange & Act - First batch
-            _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0));
-            _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5));
-            await _movieService.SaveAsync();
+  _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0, MovieStatus.Seen));
+    _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5, MovieStatus.Watchlist));
+        await _movieService.SaveAsync();
 
-            // Create new service, load, and add more
-            var newService = new MovieService(_repository, _filterService);
-            await newService.InitializeAsync();
-            newService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0));
-            await newService.SaveAsync();
+  // Create new service, load, and add more
+      var newService = new MovieService(_repository, _filterService);
+  await newService.InitializeAsync();
+    newService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0, MovieStatus.Favorite));
+  await newService.SaveAsync();
 
-            // Reload and verify
-            var finalService = new MovieService(_repository, _filterService);
-            await finalService.InitializeAsync();
+   // Reload and verify
+    var finalService = new MovieService(_repository, _filterService);
+      await finalService.InitializeAsync();
 
-            // Assert
-            var finalMovies = finalService.GetAllMovies().ToList();
-            Assert.That(finalMovies, Has.Count.EqualTo(3));
-            Assert.That(finalMovies.Select(m => m.Title), Contains.Item("Movie 1"));
-            Assert.That(finalMovies.Select(m => m.Title), Contains.Item("Movie 3"));
-        }
+    // Assert
+    var finalMovies = finalService.GetAllMovies().ToList();
+  Assert.That(finalMovies, Has.Count.EqualTo(3));
+        Assert.That(finalMovies.Select(m => m.Title), Contains.Item("Movie 1"));
+      Assert.That(finalMovies.Select(m => m.Title), Contains.Item("Movie 3"));
+  }
 
         #endregion Add/Update Workflow Integration Tests
 
@@ -404,7 +405,7 @@ namespace MovieBox.Core.Tests.Integration
         public async Task LoadedMovies_MaintainDataIntegrity()
         {
             // Arrange
-            var originalMovie = new Movie("Exact Title", "Exact Director", 1985, 7.55);
+            var originalMovie = new Movie("Exact Title", "Exact Director", 1985, 7.55, MovieStatus.Favorite);
             _movieService.AddMovie(originalMovie);
             await _movieService.SaveAsync();
 
@@ -418,7 +419,8 @@ namespace MovieBox.Core.Tests.Integration
             Assert.That(loadedMovie.Director, Is.EqualTo("Exact Director"));
             Assert.That(loadedMovie.ReleaseYear, Is.EqualTo(1985));
             Assert.That(loadedMovie.Rating, Is.EqualTo(7.55));
-        }
+            Assert.That(loadedMovie.Status, Is.EqualTo(MovieStatus.Favorite));
+       }
 
         #endregion Data Validation Integration Tests
 
@@ -428,9 +430,9 @@ namespace MovieBox.Core.Tests.Integration
         public void DeleteMovie_RemovesMovieAtValidIndex()
         {
             // Arrange
-            _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0));
-            _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5));
-            _movieService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0));
+            _movieService.AddMovie(new Movie("Movie 1", "Director 1", 2020, 8.0, MovieStatus.Seen));
+            _movieService.AddMovie(new Movie("Movie 2", "Director 2", 2021, 8.5, MovieStatus.Favorite));
+            _movieService.AddMovie(new Movie("Movie 3", "Director 3", 2022, 9.0, MovieStatus.Watchlist));
 
             // Act
             bool result = _movieService.DeleteMovie(1); // Delete "Movie 2"
@@ -447,9 +449,9 @@ namespace MovieBox.Core.Tests.Integration
         public void DeleteMovie_WithFirstIndex_RemovesFirstMovie()
         {
             // Arrange
-            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0));
-            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5));
-            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0));
+            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0, MovieStatus.Favorite));
+            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5, MovieStatus.Seen));
+            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0, MovieStatus.Watchlist));
 
             // Act
             bool result = _movieService.DeleteMovie(0);
@@ -464,20 +466,19 @@ namespace MovieBox.Core.Tests.Integration
         public void DeleteMovie_WithLastIndex_RemovesLastMovie()
         {
             // Arrange
-            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0));
-            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5));
-            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0));
+            _movieService.AddMovie(new Movie("First", "Dir", 2020, 8.0, MovieStatus.Seen));
+            _movieService.AddMovie(new Movie("Second", "Dir", 2021, 8.5, MovieStatus.Favorite));
+            _movieService.AddMovie(new Movie("Third", "Dir", 2022, 9.0, MovieStatus.Watchlist));
 
-            // Act
-            bool result = _movieService.DeleteMovie(2);
+   // Act
+    bool result = _movieService.DeleteMovie(2);
 
-            // Assert
-            Assert.That(result, Is.True);
-            var movies = _movieService.GetAllMovies().ToList();
-            Assert.That(movies, Has.Count.EqualTo(2));
-            Assert.That(movies[1].Title, Is.EqualTo("Second"));
-        }
-
+    // Assert
+   Assert.That(result, Is.True);
+       var movies = _movieService.GetAllMovies().ToList();
+     Assert.That(movies, Has.Count.EqualTo(2));
+ Assert.That(movies[1].Title, Is.EqualTo("Second"));
+ }
         #endregion Delete Movie Integration Tests
     }
-}
+}}

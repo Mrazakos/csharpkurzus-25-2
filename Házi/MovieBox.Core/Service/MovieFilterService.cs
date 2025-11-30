@@ -28,6 +28,10 @@ namespace MovieBox.Core.Service
             {
                 query = query.Where(m => m.Rating <= criteria.RatingMax.Value);
             }
+            if (criteria.Status.HasValue)
+            {
+                query = query.Where(m => m.Status == criteria.Status.Value);
+            }
 
             return criteria.ResultCount.HasValue ? query.Take(criteria.ResultCount.Value).ToList() : query.ToList();
         }

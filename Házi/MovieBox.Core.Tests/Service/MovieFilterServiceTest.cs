@@ -16,14 +16,14 @@ namespace MovieBox.Core.Tests.Service
             _filterService = new MovieFilterService();
             _testMovies = new List<Movie>
             {
-                new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3),
-                new Movie("The Godfather", "Francis Ford Coppola", 1972, 9.2),
-                new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0),
-                new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9),
-                new Movie("Inception", "Christopher Nolan", 2010, 8.8),
-                new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8),
-                new Movie("Interstellar", "Christopher Nolan", 2014, 8.6),
-                new Movie("The Matrix", "The Wachowskis", 1999, 8.7)
+                new Movie("The Shawshank Redemption", "Frank Darabont", 1994, 9.3, MovieStatus.Favorite),
+                new Movie("The Godfather", "Francis Ford Coppola", 1972, 9.2, MovieStatus.Favorite),
+                new Movie("The Dark Knight", "Christopher Nolan", 2008, 9.0, MovieStatus.Seen),
+                new Movie("Pulp Fiction", "Quentin Tarantino", 1994, 8.9, MovieStatus.Watchlist),
+                new Movie("Inception", "Christopher Nolan", 2010, 8.8, MovieStatus.Seen),
+                new Movie("Forrest Gump", "Robert Zemeckis", 1994, 8.8, MovieStatus.Favorite),
+                new Movie("Interstellar", "Christopher Nolan", 2014, 8.6, MovieStatus.Watchlist),
+                new Movie("The Matrix", "The Wachowskis", 1999, 8.7, MovieStatus.Seen)
             };
         }
 
@@ -475,5 +475,69 @@ namespace MovieBox.Core.Tests.Service
         }
 
         #endregion Result Type Tests
+
+        #region Filter by Status Tests
+
+        [Test]
+        public void FilterMovies_WithStatusCriteria_ReturnsMoviesByStatus()
+        {
+            // Arrange
+            var criteria = new MovieFilterCriteria { Status = MovieStatus.Favorite };
+
+            // Act
+            var result = _filterService.FilterMovies(_testMovies, criteria);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(3));
+            Assert.That(result, Has.All.Matches<Movie>(m => m.Status == MovieStatus.Favorite));
+        }
+
+        [Test]
+        public void FilterMovies_WithStatusCriteria_SeenStatus()
+        {
+            // Arrange
+            var criteria = new MovieFilterCriteria { Status = MovieStatus.Seen };
+
+            // Act
+            var result = _filterService.FilterMovies(_testMovies, criteria);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(3));
+            Assert.That(result, Has.All.Matches<Movie>(m => m.Status == MovieStatus.Seen));
+        }
+
+        [Test]
+        public void FilterMovies_WithStatusCriteria_WatchlistStatus()
+        {
+            // Arrange
+            var criteria = new MovieFilterCriteria { Status = MovieStatus.Watchlist };
+
+            // Act
+            var result = _filterService.FilterMovies(_testMovies, criteria);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.That(result, Has.All.Matches<Movie>(m => m.Status == MovieStatus.Watchlist));
+        }
+
+        [Test]
+        public void FilterMovies_WithStatusAndDirectorCriteria_ReturnsCombinedResults()
+        {
+            // Arrange
+            var criteria = new MovieFilterCriteria
+            {
+                Status = MovieStatus.Seen,
+                DirectorContains = "Nolan"
+            };
+
+            // Act
+            var result = _filterService.FilterMovies(_testMovies, criteria);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.That(result, Has.All.Matches<Movie>(m => m.Status == MovieStatus.Seen && m.Director.Contains("Nolan")));
+        }
+
+        #endregion Filter by Status Tests
     }
 }
